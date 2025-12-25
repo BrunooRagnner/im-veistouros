@@ -1,1 +1,484 @@
 
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BlueHomes - Imóveis</title>
+
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+
+<style>
+body{background:white;color:#0a2a52;}
+input,textarea,select{border:1px solid #cdd7ec;padding:8px;border-radius:6px;width:100%;}
+.modal-bg{background:rgba(0,0,0,.50);}
+img{object-fit:cover;}
+.video-container{position:relative;padding-bottom:56.25%;height:0;}
+.video-container video{position:absolute;top:0;left:0;width:100%;height:100%;}
+</style>
+</head>
+<body>
+
+<div id="app" class="min-h-screen flex flex-col">
+
+<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
+    <h1 class="font-bold text-xl">🏠 BlueHomes</h1>
+    <button @click="menu=!menu"><i class="fa-solid fa-bars text-2xl"></i></button>
+</header>
+
+<!-- MENU -->
+<div v-if="menu" class="absolute top-14 right-3 bg-white shadow-lg rounded p-3 w-52 z-50">
+    <button @click="view='home';menu=false" class="block py-2">🏠 Início</button>
+    <button @click="view='filtros';menu=false" class="block py-2">🔍 Filtros</button>
+    <button @click="modalZap=true;menu=false" class="block py-2">📤 Anunciar imóvel</button>
+    <button v-if="!admin" @click="view='login';menu=false" class="block py-2 text-blue-600">🔐 Área Admin</button>
+    <button v-if="admin" @click="view='admin';menu=false" class="block py-2 text-green-600">📋 Painel Admin</button>
+    <button v-if="admin" @click="sair();menu=false" class="block py-2 text-red-600">🚪 Sair</button>
+</div>
+
+<!-- MODAL ANUNCIAR -->
+<div v-if="modalZap" class="fixed inset-0 modal-bg flex items-center justify-center p-4">
+    <div class="bg-white p-5 rounded shadow max-w-sm text-center w-full">
+        <h2 class="text-xl font-bold mb-3">📩 Anunciar Imóvel</h2>
+        <p>Envie fotos e informações pelo WhatsApp:</p>
+        <a href="https://wa.me/5584991612793" target="_blank"
+        class="bg-green-600 text-white block w-full py-3 rounded mt-3 text-lg font-bold">
+            📱 Falar no WhatsApp
+        </a>
+        <button class="mt-4 text-red-600 font-bold" @click="modalZap=false">Fechar</button>
+    </div>
+</div>
+
+<!-- FILTROS -->
+<div v-if="view==='filtros'" class="p-4 max-w-md mx-auto">
+    <h2 class="text-lg font-bold mb-3 text-blue-700">Filtrar imóveis</h2>
+    <select v-model="filtroCidade" class="mb-2">
+        <option value="">Todas cidades</option>
+        <option v-for="c in listaCidades" :value="c">{{c}}</option>
+    </select>
+    <select v-model="filtroTipo" class="mb-2">
+        <option value="">Todos os tipos</option>
+        <option value="venda">Venda</option>
+        <option value="aluguel">Aluguel</option>
+        <option value="temporada">Temporada</option>
+        <option value="diaria">Diária</option>
+    </select>
+    <input type="number" v-model="filtroMin" placeholder="Valor mínimo" class="mb-2">
+    <input type="number" v-model="filtroMax" placeholder="Valor máximo" class="mb-2">
+    <button @click="filtrar" class="bg-blue-600 text-white w-full py-2 rounded mt-2">Aplicar filtros</button>
+</div>
+
+<!-- HOME -->
+<div v-if="view==='home'" class="p-3 grid gap-4">
+    <h2 class="font-bold text-lg">Imóveis disponíveis</h2>
+    <div v-for="im in filtrados" class="bg-white rounded shadow overflow-hidden">
+        <!-- Exibir vídeo se existir, senão foto -->
+        <div class="w-full h-44 overflow-hidden relative">
+            <video v-if="im.video" :src="im.video" class="w-full h-full object-cover" muted loop></video>
+            <img v-else :src="im.fotos[0]" class="w-full h-full">
+            <div v-if="im.video" class="absolute bottom-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs">
+                <i class="fas fa-video mr-1"></i>Vídeo
+            </div>
+        </div>
+        <div class="p-3">
+            <h3 class="text-blue-700 font-bold text-lg">{{im.titulo}}</h3>
+            <span class="inline-block px-2 py-1 text-xs rounded bg-blue-600 text-white">
+                {{ im.tipo.toUpperCase() }}
+            </span>
+            <p>{{im.cidade}} - {{im.bairro}}</p>
+            <p class="font-bold text-green-700 mt-1">R$ {{im.valor}}</p>
+            <button @click="ver(im)" class="bg-blue-600 text-white w-full py-2 rounded mt-2">
+                Ver detalhes
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- LOGIN -->
+<div v-if="view==='login'" class="p-5 max-w-sm mx-auto">
+    <h2 class="font-bold text-xl mb-3 text-center">Acesso Admin</h2>
+    <input type="password" v-model="senha" placeholder="Senha" class="mb-3">
+    <button @click="logar" class="bg-blue-600 text-white w-full py-2 rounded">Entrar</button>
+</div>
+
+<!-- ADMIN -->
+<div v-if="view==='admin'" class="p-4">
+    <h2 class="text-xl font-bold text-blue-700 mb-3">Painel Administrativo</h2>
+    <button @click="view='cadastro'" class="bg-green-600 text-white py-2 px-3 rounded mb-3">+ Novo Imóvel</button>
+    <div v-for="(im,i) in imoveis" class="flex items-center border-b py-2 gap-3">
+        <div class="w-14 h-14 rounded overflow-hidden relative">
+            <video v-if="im.video" :src="im.video" class="w-full h-full object-cover"></video>
+            <img v-else :src="im.fotos[0]" class="w-full h-full">
+        </div>
+        <span class="flex-1">{{im.titulo}}</span>
+        <button @click="editar(i)" class="text-blue-600"><i class="fa-solid fa-pen"></i></button>
+        <button @click="apagar(i)" class="text-red-600"><i class="fa-solid fa-trash"></i></button>
+    </div>
+</div>
+
+<!-- CADASTRO COMPLETO -->
+<div v-if="view==='cadastro'" class="p-4 max-w-md mx-auto">
+    <h2 class="text-xl font-bold text-blue-700 mb-3">{{form.id ? 'Editar' : 'Cadastrar'}} Imóvel</h2>
+    
+    <input v-model="form.titulo" placeholder="Título *" required class="mb-2">
+    <input v-model="form.bairro" placeholder="Bairro *" required class="mb-2">
+    <input v-model="form.cidade" placeholder="Cidade *" required class="mb-2">
+    
+    <select v-model="form.tipo" class="mb-2">
+        <option value="venda">Venda</option>
+        <option value="aluguel">Aluguel</option>
+        <option value="temporada">Temporada</option>
+        <option value="diaria">Diária</option>
+    </select>
+    
+    <input type="number" v-model="form.valor" placeholder="Valor *" required class="mb-2">
+    
+    <div class="grid grid-cols-2 gap-2 mb-2">
+        <input v-model="form.quartos" type="number" placeholder="Quartos">
+        <input v-model="form.banheiros" type="number" placeholder="Banheiros">
+        <input v-model="form.vagas" type="number" placeholder="Vagas">
+        <input v-model="form.area" type="number" placeholder="Área m²">
+    </div>
+    
+    <input v-model="form.condominio" placeholder="Condomínio" class="mb-2">
+    <input v-model="form.iptu" placeholder="IPTU" class="mb-2">
+    <textarea v-model="form.descricao" placeholder="Descrição" rows="3" class="mb-2"></textarea>
+    
+    <!-- UPLOAD DE VÍDEO E FOTOS -->
+    <div class="mb-3 p-3 border rounded">
+        <h3 class="font-bold mb-2">Upload de Mídia</h3>
+        
+        <!-- VÍDEO -->
+        <div class="mb-3">
+            <label class="block mb-1"><i class="fas fa-video"></i> Vídeo (opcional)</label>
+            <input type="file" accept="video/*" @change="uploadVideo" class="mb-2">
+            <div v-if="form.video" class="text-green-600 text-sm">
+                <i class="fas fa-check"></i> Vídeo selecionado
+                <button @click="form.video = null" class="ml-2 text-red-600 text-xs">Remover</button>
+            </div>
+        </div>
+        
+        <!-- FOTOS -->
+        <div>
+            <label class="block mb-1"><i class="fas fa-images"></i> Fotos (máx. 10)</label>
+            <input type="file" multiple accept="image/*" @change="uploadFotos" class="mb-2">
+            <div class="text-sm text-gray-600">
+                {{ form.fotos.length }} / 10 fotos selecionadas
+            </div>
+            
+            <!-- PRÉVIA DAS FOTOS -->
+            <div v-if="form.fotos.length" class="grid grid-cols-4 gap-2 mt-2">
+                <div v-for="(foto, idx) in form.fotos" class="relative">
+                    <img :src="foto" class="w-full h-16 object-cover rounded">
+                    <button @click="removerFoto(idx)" 
+                            class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-4 h-4 text-xs">
+                        ×
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="flex gap-2">
+        <button @click="cancelar" class="bg-gray-400 text-white w-1/2 py-2 rounded">Cancelar</button>
+        <button @click="salvar" :disabled="!podeSalvar" 
+                class="bg-blue-600 text-white w-1/2 py-2 rounded disabled:opacity-50">
+            Salvar
+        </button>
+    </div>
+</div>
+
+<!-- DETALHES -->
+<div v-if="detalhes" class="fixed inset-0 modal-bg flex justify-center p-4">
+    <div class="bg-white rounded max-w-md w-full p-3 relative overflow-y-auto h-[90vh]">
+        <button @click="detalhes=false" class="absolute right-3 top-3 text-xl">✖</button>
+        
+        <!-- VÍDEO -->
+        <div v-if="sel.video" class="mb-3">
+            <div class="video-container rounded overflow-hidden">
+                <video :src="sel.video" controls class="w-full"></video>
+            </div>
+        </div>
+        
+        <!-- CARROSSEL DE FOTOS -->
+        <div v-if="sel.fotos.length" class="mb-3">
+            <img :src="sel.fotos[fotoIndex]" class="w-full h-64 rounded mb-2 cursor-pointer" @click="zoom=true">
+            <div class="flex justify-between">
+                <button @click="prevFoto" :disabled="fotoIndex === 0" 
+                        class="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50">
+                    ← Anterior
+                </button>
+                <span class="py-1">{{ fotoIndex + 1 }} / {{ sel.fotos.length }}</span>
+                <button @click="nextFoto" :disabled="fotoIndex === sel.fotos.length - 1"
+                        class="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50">
+                    Próxima →
+                </button>
+            </div>
+            
+            <!-- MINIATURAS -->
+            <div class="flex overflow-x-auto mt-2 gap-1">
+                <img v-for="(f, idx) in sel.fotos" :src="f" 
+                     @click="fotoIndex = idx"
+                     :class="['w-12 h-12 object-cover cursor-pointer rounded', 
+                             fotoIndex === idx ? 'ring-2 ring-blue-500' : 'opacity-70']">
+            </div>
+        </div>
+        
+        <!-- INFORMAÇÕES -->
+        <h2 class="font-bold text-xl text-blue-700 mb-2">{{sel.titulo}}</h2>
+        <p><b>Cidade:</b> {{sel.cidade}}</p>
+        <p><b>Bairro:</b> {{sel.bairro}}</p>
+        <p><b>Tipo:</b> {{sel.tipo}}</p>
+        <p><b>Área:</b> {{sel.area}} m²</p>
+        <p><b>Quartos:</b> {{sel.quartos}} | <b>Banheiros:</b> {{sel.banheiros}} | <b>Vagas:</b> {{sel.vagas}}</p>
+        <p><b>Condomínio:</b> {{sel.condominio || 'Não informado'}}</p>
+        <p><b>IPTU:</b> {{sel.iptu || 'Não informado'}}</p>
+        <p class="mt-3 whitespace-pre-line">{{sel.descricao}}</p>
+        
+        <p class="font-bold text-green-700 text-2xl mt-3">R$ {{formatarValor(sel.valor)}}</p>
+        
+        <a :href="'https://wa.me/5584991612793?text=Tenho%20interesse%20no%20imóvel:%20' + encodeURIComponent(sel.titulo)"
+           class="bg-green-600 text-white w-full block text-center py-3 rounded mt-3 font-bold">
+           <i class="fab fa-whatsapp"></i> Falar no WhatsApp
+        </a>
+    </div>
+</div>
+
+<!-- ZOOM -->
+<div v-if="zoom" class="fixed inset-0 bg-black flex items-center justify-center z-50">
+    <img :src="sel.fotos[fotoIndex]" class="max-w-full max-h-full">
+    <button @click="zoom=false" class="absolute top-4 right-4 text-white text-2xl bg-black/50 rounded-full w-10 h-10">
+        ✖
+    </button>
+</div>
+
+</div>
+
+<script>
+const app = Vue.createApp({
+    data() {
+        return {
+            view: 'home',
+            menu: false,
+            admin: false,
+            senha: '',
+            senhaM: '8018@79',
+            modalZap: false,
+            
+            imoveis: JSON.parse(localStorage.getItem("imoveis") || "[]"),
+            filtrados: [],
+            
+            filtroCidade: '',
+            filtroTipo: '',
+            filtroMin: '',
+            filtroMax: '',
+            
+            form: {
+                id: null,
+                titulo: '',
+                bairro: '',
+                cidade: '',
+                tipo: 'venda',
+                valor: '',
+                descricao: '',
+                quartos: '',
+                banheiros: '',
+                vagas: '',
+                area: '',
+                condominio: '',
+                iptu: '',
+                fotos: [],
+                video: null
+            },
+            
+            detalhes: false,
+            sel: null,
+            fotoIndex: 0,
+            zoom: false
+        }
+    },
+    
+    created() {
+        this.filtrados = this.imoveis;
+    },
+    
+    computed: {
+        listaCidades() {
+            return [...new Set(this.imoveis.map(i => i.cidade))];
+        },
+        
+        podeSalvar() {
+            return this.form.titulo && 
+                   this.form.fotos.length > 0 && 
+                   this.form.fotos.length <= 10;
+        }
+    },
+    
+    methods: {
+        logar() {
+            if (this.senha === this.senhaM) {
+                this.admin = true;
+                this.view = 'admin';
+                this.senha = '';
+            } else {
+                alert("Senha incorreta!");
+            }
+        },
+        
+        sair() {
+            this.admin = false;
+            this.view = 'home';
+        },
+        
+        uploadVideo(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+            
+            // Limitar tamanho do vídeo (opcional)
+            if (file.size > 50 * 1024 * 1024) { // 50MB
+                alert("Vídeo muito grande! Máximo 50MB.");
+                return;
+            }
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                this.form.video = e.target.result;
+            };
+            reader.readAsDataURL(file);
+            event.target.value = ''; // Reset input
+        },
+        
+        uploadFotos(event) {
+            const files = Array.from(event.target.files);
+            const fotosRestantes = 10 - this.form.fotos.length;
+            
+            if (files.length > fotosRestantes) {
+                alert(`Você só pode adicionar mais ${fotosRestantes} fotos.`);
+                files.splice(fotosRestantes);
+            }
+            
+            files.forEach(file => {
+                if (!file.type.includes('image/')) return;
+                
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    this.form.fotos.push(e.target.result);
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            event.target.value = ''; // Reset input
+        },
+        
+        removerFoto(index) {
+            this.form.fotos.splice(index, 1);
+        },
+        
+        salvar() {
+            if (!this.podeSalvar) {
+                alert("Preencha o título e adicione entre 1 e 10 fotos!");
+                return;
+            }
+            
+            if (this.form.id) {
+                // Editar
+                const index = this.imoveis.findIndex(i => i.id === this.form.id);
+                this.imoveis[index] = {...this.form};
+            } else {
+                // Novo
+                this.form.id = Date.now();
+                this.imoveis.push({...this.form});
+            }
+            
+            localStorage.setItem("imoveis", JSON.stringify(this.imoveis));
+            this.limparForm();
+            this.view = 'admin';
+        },
+        
+        editar(index) {
+            this.form = JSON.parse(JSON.stringify(this.imoveis[index]));
+            this.view = 'cadastro';
+        },
+        
+        apagar(index) {
+            if (confirm("Deseja remover este imóvel?")) {
+                this.imoveis.splice(index, 1);
+                localStorage.setItem("imoveis", JSON.stringify(this.imoveis));
+                this.atualizarLista();
+            }
+        },
+        
+        cancelar() {
+            this.limparForm();
+            this.view = 'admin';
+        },
+        
+        filtrar() {
+            this.filtrados = this.imoveis.filter(i => {
+                return (!this.filtroCidade || i.cidade === this.filtroCidade) &&
+                       (!this.filtroTipo || i.tipo === this.filtroTipo) &&
+                       (!this.filtroMin || i.valor >= this.filtroMin) &&
+                       (!this.filtroMax || i.valor <= this.filtroMax);
+            });
+            this.view = 'home';
+        },
+        
+        ver(im) {
+            this.sel = im;
+            this.fotoIndex = 0;
+            this.detalhes = true;
+        },
+        
+        nextFoto() {
+            if (this.fotoIndex < this.sel.fotos.length - 1) {
+                this.fotoIndex++;
+            }
+        },
+        
+        prevFoto() {
+            if (this.fotoIndex > 0) {
+                this.fotoIndex--;
+            }
+        },
+        
+        atualizarLista() {
+            localStorage.setItem("imoveis", JSON.stringify(this.imoveis));
+            this.filtrados = this.imoveis;
+        },
+        
+        limparForm() {
+            this.form = {
+                id: null,
+                titulo: '',
+                bairro: '',
+                cidade: '',
+                tipo: 'venda',
+                valor: '',
+                descricao: '',
+                quartos: '',
+                banheiros: '',
+                vagas: '',
+                area: '',
+                condominio: '',
+                iptu: '',
+                fotos: [],
+                video: null
+            };
+        },
+        
+        formatarValor(valor) {
+            return Number(valor).toLocaleString('pt-BR', {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+            });
+        }
+    }
+});
+
+app.mount("#app");
+</script>
+
+</body>
+</html>
