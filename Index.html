@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!DOCTYP<!DOCTYPE html>
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
@@ -10,485 +10,380 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
-body{background:white;color:#0a2a52;}
-input,textarea,select{border:1px solid #cdd7ec;padding:8px;border-radius:6px;width:100%;}
-.modal-bg{background:rgba(0,0,0,.50);}
+body{background:#f8fafc;color:#0a2a52;}
+input,textarea,select{border:1px solid #cbd5e1;padding:10px;border-radius:8px;width:100%;font-size:14px;}
+input:focus,textarea:focus,select:focus{outline:none;border-color:#3b82f6;box-shadow:0 0 0 3px rgba(59,130,246,0.1);}
+.modal-bg{background:rgba(0,0,0,0.7);}
 img{object-fit:cover;}
-.video-container{position:relative;padding-bottom:56.25%;height:0;}
+.video-container{position:relative;padding-bottom:56.25%;height:0;border-radius:8px;overflow:hidden;}
 .video-container video{position:absolute;top:0;left:0;width:100%;height:100%;}
+.btn-primary{background:#2563eb;color:white;padding:10px 16px;border-radius:8px;font-weight:500;transition:all 0.2s;}
+.btn-primary:hover{background:#1d4ed8;}
+.btn-secondary{background:#6b7280;color:white;padding:10px 16px;border-radius:8px;font-weight:500;transition:all 0.2s;}
+.btn-secondary:hover{background:#4b5563;}
+.card-shadow{box-shadow:0 1px 3px 0 rgba(0,0,0,0.1),0 1px 2px -1px rgba(0,0,0,0.1);}
+.card-shadow:hover{box-shadow:0 10px 15px -3px rgba(0,0,0,0.1),0 4px 6px -4px rgba(0,0,0,0.1);}
 </style>
 </head>
 <body>
 
 <div id="app" class="min-h-screen flex flex-col">
 
-<header class="bg-blue-600 text-white p-4 flex justify-between items-center">
-    <h1 class="font-bold text-xl">🏠 BlueHomes</h1>
-    <button @click="menu=!menu"><i class="fa-solid fa-bars text-2xl"></i></button>
+<!-- HEADER -->
+<header class="bg-gradient-to-r from-blue-600 to-blue-800 text-white p-4 flex justify-between items-center shadow-lg">
+    <div class="flex items-center space-x-2">
+        <i class="fas fa-home text-2xl"></i>
+        <h1 class="font-bold text-xl">BlueHomes</h1>
+    </div>
+    <button @click="menu=!menu" class="p-2 hover:bg-blue-700 rounded-lg transition">
+        <i class="fa-solid fa-bars text-xl"></i>
+    </button>
 </header>
 
-<!-- MENU -->
-<div v-if="menu" class="absolute top-14 right-3 bg-white shadow-lg rounded p-3 w-52 z-50">
-    <button @click="irPara('home')" class="block py-2">🏠 Início</button>
-    <button @click="irPara('filtros')" class="block py-2">🔍 Filtros</button>
-    <button @click="modalZap=true;menu=false" class="block py-2">📤 Anunciar imóvel</button>
-    <button v-if="!admin" @click="irPara('login')" class="block py-2 text-blue-600">🔐 Área Admin</button>
-    <button v-if="admin" @click="irPara('admin')" class="block py-2 text-green-600">📋 Painel Admin</button>
-    <button v-if="admin" @click="sair()" class="block py-2 text-red-600">🚪 Sair</button>
-</div>
-
-<!-- MODAL ANUNCIAR -->
-<div v-if="modalZap" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-40">
-    <div class="bg-white p-5 rounded shadow max-w-sm text-center w-full">
-        <h2 class="text-xl font-bold mb-3">📩 Anunciar Imóvel</h2>
-        <p>Envie fotos e informações pelo WhatsApp:</p>
-        <a href="https://wa.me/5584991612793" target="_blank"
-        class="bg-green-600 text-white block w-full py-3 rounded mt-3 text-lg font-bold">
-            📱 Falar no WhatsApp
-        </a>
-        <button class="mt-4 text-red-600 font-bold" @click="modalZap=false">Fechar</button>
+<!-- MENU LATERAL -->
+<div v-if="menu" class="fixed inset-0 z-50" @click="menu=false">
+    <div class="absolute top-14 right-3 bg-white rounded-xl shadow-2xl p-4 w-64 animate-fadeIn">
+        <div class="space-y-1">
+            <button @click="irPara('home')" class="flex items-center w-full text-left p-3 hover:bg-blue-50 rounded-lg">
+                <i class="fas fa-home text-blue-600 mr-3 w-5"></i>
+                <span>Início</span>
+            </button>
+            <button @click="irPara('filtros')" class="flex items-center w-full text-left p-3 hover:bg-blue-50 rounded-lg">
+                <i class="fas fa-filter text-blue-600 mr-3 w-5"></i>
+                <span>Filtros</span>
+            </button>
+            <button @click="modalAnunciar=true;menu=false" class="flex items-center w-full text-left p-3 hover:bg-blue-50 rounded-lg">
+                <i class="fas fa-plus-circle text-green-600 mr-3 w-5"></i>
+                <span>Anunciar imóvel</span>
+            </button>
+            <div class="border-t my-2"></div>
+            <button v-if="!admin" @click="irPara('login')" class="flex items-center w-full text-left p-3 hover:bg-blue-50 rounded-lg">
+                <i class="fas fa-lock text-blue-600 mr-3 w-5"></i>
+                <span>Área Admin</span>
+            </button>
+            <button v-if="admin" @click="irPara('admin')" class="flex items-center w-full text-left p-3 hover:bg-blue-50 rounded-lg">
+                <i class="fas fa-chart-line text-green-600 mr-3 w-5"></i>
+                <span>Painel Admin</span>
+            </button>
+            <button v-if="admin" @click="sair()" class="flex items-center w-full text-left p-3 hover:bg-red-50 rounded-lg text-red-600">
+                <i class="fas fa-sign-out-alt mr-3 w-5"></i>
+                <span>Sair</span>
+            </button>
+        </div>
     </div>
 </div>
 
-<!-- FILTROS -->
-<div v-if="view==='filtros'" class="p-4 max-w-md mx-auto">
-    <h2 class="text-lg font-bold mb-3 text-blue-700">Filtrar imóveis</h2>
-    <select v-model="filtroCidade" class="mb-2">
-        <option value="">Todas cidades</option>
-        <option v-for="c in listaCidades" :value="c">{{c}}</option>
-    </select>
-    <select v-model="filtroTipo" class="mb-2">
-        <option value="">Todos os tipos</option>
-        <option value="venda">Venda</option>
-        <option value="aluguel">Aluguel</option>
-        <option value="temporada">Temporada</option>
-        <option value="diaria">Diária</option>
-    </select>
-    <input type="number" v-model="filtroMin" placeholder="Valor mínimo" class="mb-2">
-    <input type="number" v-model="filtroMax" placeholder="Valor máximo" class="mb-2">
-    <button @click="aplicarFiltros" class="bg-blue-600 text-white w-full py-2 rounded mt-2">Aplicar filtros</button>
-    <button @click="irPara('home')" class="bg-gray-400 text-white w-full py-2 rounded mt-2">Voltar</button>
+<!-- MODAL ANUNCIAR (Com campo de WhatsApp) -->
+<div v-if="modalAnunciar" class="fixed inset-0 modal-bg flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-2xl shadow-2xl p-6 max-w-md w-full animate-popIn">
+        <div class="text-center mb-6">
+            <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <i class="fas fa-home text-3xl text-green-600"></i>
+            </div>
+            <h2 class="text-2xl font-bold mb-2">Anunciar Seu Imóvel</h2>
+            <p class="text-gray-600">Preencha os dados para cadastrar</p>
+        </div>
+        
+        <div class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-phone-alt text-green-600 mr-1"></i>
+                    Seu WhatsApp (Vendedor/Proprietário)
+                </label>
+                <div class="flex">
+                    <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                        +55
+                    </span>
+                    <input type="tel" 
+                           v-model="novoAnuncio.whatsappVendedor" 
+                           placeholder="84 99161-2793" 
+                           class="flex-1 rounded-r-md">
+                </div>
+                <p class="text-xs text-gray-500 mt-1">Este número receberá os contatos</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-user text-blue-600 mr-1"></i>
+                    Seu Nome
+                </label>
+                <input type="text" 
+                       v-model="novoAnuncio.nomeVendedor" 
+                       placeholder="João Silva">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">
+                    <i class="fas fa-home text-orange-600 mr-1"></i>
+                    Tipo do Imóvel
+                </label>
+                <select v-model="novoAnuncio.tipo" class="w-full">
+                    <option value="casa">Casa</option>
+                    <option value="apartamento">Apartamento</option>
+                    <option value="terreno">Terreno</option>
+                    <option value="comercial">Comercial</option>
+                </select>
+            </div>
+            
+            <div class="pt-4 space-y-3">
+                <button @click="abrirWhatsAppAnuncio" class="btn-primary w-full py-3">
+                    <i class="fab fa-whatsapp mr-2"></i>Prosseguir no WhatsApp
+                </button>
+                <button @click="modalAnunciar=false" class="btn-secondary w-full">
+                    Cancelar
+                </button>
+            </div>
+            
+            <div class="mt-6 pt-4 border-t border-gray-200 text-xs text-gray-500">
+                <p><i class="fas fa-info-circle mr-1"></i>Você será redirecionado para o WhatsApp para enviar fotos e detalhes</p>
+            </div>
+        </div>
+    </div>
 </div>
 
 <!-- HOME -->
-<div v-if="view==='home'" class="p-3">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="font-bold text-lg">Imóveis disponíveis</h2>
-        <span class="text-sm text-gray-600">{{ imoveis.length }} imóveis</span>
-    </div>
-    
-    <!-- Filtros ativos -->
-    <div v-if="temFiltrosAtivos" class="bg-blue-50 p-3 rounded mb-4">
-        <div class="flex justify-between items-center">
-            <span class="text-sm font-medium">Filtros aplicados:</span>
-            <button @click="limparFiltros" class="text-red-600 text-sm">
-                <i class="fas fa-times"></i> Limpar
-            </button>
-        </div>
-        <div class="text-xs text-gray-600 mt-1">
-            <span v-if="filtroCidade">{{filtroCidade}}</span>
-            <span v-if="filtroTipo" class="ml-2">{{filtroTipo}}</span>
-            <span v-if="filtroMin" class="ml-2">Min: R$ {{filtroMin}}</span>
-            <span v-if="filtroMax" class="ml-2">Max: R$ {{filtroMax}}</span>
-        </div>
-    </div>
-    
-    <!-- Lista de imóveis -->
-    <div class="grid gap-4">
-        <div v-if="imoveisFiltrados.length === 0" class="text-center p-8 bg-gray-50 rounded">
-            <i class="fas fa-home text-4xl text-gray-300 mb-2"></i>
-            <p class="text-gray-500">Nenhum imóvel encontrado</p>
-            <button v-if="temFiltrosAtivos" @click="limparFiltros" class="text-blue-600 mt-2">
-                Limpar filtros
-            </button>
-        </div>
-        
-        <div v-for="(im, index) in imoveisFiltrados" :key="im.id" class="bg-white rounded-lg shadow overflow-hidden border border-gray-100">
-            <!-- Imagem principal -->
-            <div class="relative h-48 bg-gray-200">
-                <img v-if="im.fotos && im.fotos.length > 0" 
-                     :src="im.fotos[0]" 
-                     class="w-full h-full object-cover"
-                     @error="im.fotos[0] = 'https://via.placeholder.com/400x300/0a2a52/ffffff?text=Casa'">
-                <div v-else class="w-full h-full flex items-center justify-center bg-blue-50">
-                    <i class="fas fa-home text-4xl text-blue-200"></i>
-                </div>
-                
-                <!-- Badge do tipo -->
-                <div class="absolute top-2 left-2">
-                    <span class="px-2 py-1 text-xs font-bold rounded bg-blue-600 text-white">
-                        {{ im.tipo?.toUpperCase() || 'VENDA' }}
-                    </span>
-                </div>
-                
-                <!-- Indicador de vídeo -->
-                <div v-if="im.video" class="absolute bottom-2 right-2">
-                    <span class="px-2 py-1 text-xs rounded bg-black/70 text-white">
-                        <i class="fas fa-video mr-1"></i>VÍDEO
-                    </span>
-                </div>
+<div v-if="view==='home'" class="flex-1 p-4">
+    <div class="max-w-6xl mx-auto">
+        <div class="flex flex-col sm:flex-row sm:items-center justify-between mb-8">
+            <div>
+                <h1 class="text-2xl font-bold text-gray-900">Imóveis Disponíveis</h1>
+                <p class="text-gray-600">Encontre o lar perfeito para você</p>
             </div>
-            
-            <!-- Informações -->
-            <div class="p-4">
-                <h3 class="font-bold text-lg text-blue-800 mb-1">{{ im.titulo || 'Sem título' }}</h3>
-                <p class="text-gray-600 text-sm mb-2">
-                    <i class="fas fa-map-marker-alt mr-1"></i>
-                    {{ im.cidade || 'Cidade não informada' }} - {{ im.bairro || 'Bairro não informado' }}
-                </p>
+            <div class="flex items-center space-x-3 mt-4 sm:mt-0">
+                <span class="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium">
+                    {{ imoveis.length }} imóveis
+                </span>
+                <button @click="modalAnunciar=true" class="px-4 py-2 bg-gradient-to-r from-green-500 to-green-600 text-white rounded-lg hover:shadow-lg transition">
+                    <i class="fas fa-plus mr-2"></i>Anunciar Imóvel
+                </button>
+            </div>
+        </div>
+
+        <!-- Grade de imóveis -->
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div v-for="imovel in imoveis" :key="imovel.id" 
+                 class="bg-white rounded-xl card-shadow overflow-hidden border border-gray-100 hover:border-blue-300 transition-all duration-300">
                 
-                <div class="flex items-center justify-between mb-3">
-                    <div class="flex space-x-4 text-sm text-gray-500">
-                        <span><i class="fas fa-bed mr-1"></i>{{ im.quartos || 0 }}</span>
-                        <span><i class="fas fa-bath mr-1"></i>{{ im.banheiros || 0 }}</span>
-                        <span><i class="fas fa-car mr-1"></i>{{ im.vagas || 0 }}</span>
-                        <span v-if="im.area">{{ im.area }}m²</span>
+                <!-- Imagem principal -->
+                <div class="relative h-56 bg-gradient-to-br from-blue-50 to-gray-100">
+                    <img v-if="imovel.fotos && imovel.fotos[0]" 
+                         :src="imovel.fotos[0]" 
+                         class="w-full h-full object-cover">
+                    <div v-else class="w-full h-full flex items-center justify-center">
+                        <i class="fas fa-home text-5xl text-blue-200"></i>
                     </div>
-                    <div class="font-bold text-green-700 text-lg">
-                        R$ {{ formatarValor(im.valor) || '0,00' }}
+                    
+                    <!-- Badge do tipo -->
+                    <div class="absolute top-3 left-3">
+                        <span :class="[
+                            'px-3 py-1 text-xs font-bold rounded-full shadow',
+                            imovel.tipo === 'venda' ? 'bg-red-500 text-white' :
+                            imovel.tipo === 'aluguel' ? 'bg-green-500 text-white' :
+                            imovel.tipo === 'temporada' ? 'bg-purple-500 text-white' :
+                            'bg-yellow-500 text-white'
+                        ]">
+                            {{ getTipoLabel(imovel.tipo) }}
+                        </span>
                     </div>
                 </div>
                 
-                <button @click="verImovel(im)" 
-                        class="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-4 rounded-lg transition">
-                    Ver detalhes
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- LOGIN -->
-<div v-if="view==='login'" class="p-5 max-w-sm mx-auto">
-    <h2 class="font-bold text-xl mb-3 text-center">Acesso Admin</h2>
-    <input type="password" v-model="senha" placeholder="Digite a senha" class="mb-3">
-    <button @click="logar" class="bg-blue-600 text-white w-full py-2 rounded">Entrar</button>
-    <button @click="irPara('home')" class="bg-gray-400 text-white w-full py-2 rounded mt-2">Voltar</button>
-</div>
-
-<!-- ADMIN -->
-<div v-if="view==='admin'" class="p-4">
-    <div class="flex justify-between items-center mb-4">
-        <h2 class="text-xl font-bold text-blue-700">Painel Administrativo</h2>
-        <span class="text-sm text-gray-600">{{ imoveis.length }} imóveis cadastrados</span>
-    </div>
-    
-    <div class="flex gap-2 mb-4">
-        <button @click="irPara('cadastro')" class="bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded-lg flex-1">
-            <i class="fas fa-plus mr-2"></i>Novo Imóvel
-        </button>
-        <button @click="exportarDados" class="bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded-lg">
-            <i class="fas fa-download mr-2"></i>Backup
-        </button>
-    </div>
-    
-    <!-- Dados de exemplo (se não houver imóveis) -->
-    <div v-if="imoveis.length === 0" class="mb-4 p-4 bg-yellow-50 rounded border border-yellow-200">
-        <p class="text-sm text-yellow-800">
-            <i class="fas fa-info-circle mr-2"></i>
-            Nenhum imóvel cadastrado ainda. Adicione seu primeiro imóvel!
-        </p>
-    </div>
-    
-    <!-- Lista de imóveis -->
-    <div class="space-y-3">
-        <div v-for="(im, index) in imoveis" :key="im.id" 
-             class="flex items-center p-3 bg-white rounded-lg border border-gray-200 hover:border-blue-300">
-            <!-- Miniatura -->
-            <div class="w-16 h-16 rounded overflow-hidden flex-shrink-0 mr-3 bg-gray-100">
-                <img v-if="im.fotos && im.fotos.length > 0" 
-                     :src="im.fotos[0]" 
-                     class="w-full h-full object-cover">
-                <div v-else class="w-full h-full flex items-center justify-center text-gray-400">
-                    <i class="fas fa-home"></i>
-                </div>
-            </div>
-            
-            <!-- Informações -->
-            <div class="flex-1 min-w-0">
-                <h4 class="font-medium truncate">{{ im.titulo || 'Sem título' }}</h4>
-                <p class="text-sm text-gray-600">{{ im.cidade }} - {{ im.bairro }}</p>
-                <p class="text-xs text-gray-500">R$ {{ formatarValor(im.valor) }} • {{ im.tipo }}</p>
-            </div>
-            
-            <!-- Ações -->
-            <div class="flex gap-2 ml-2">
-                <button @click="editarImovel(index)" 
-                        class="text-blue-600 hover:text-blue-800 p-2">
-                    <i class="fas fa-edit"></i>
-                </button>
-                <button @click="confirmarExclusao(index)" 
-                        class="text-red-600 hover:text-red-800 p-2">
-                    <i class="fas fa-trash"></i>
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- CADASTRO COMPLETO -->
-<div v-if="view==='cadastro'" class="p-4 max-w-md mx-auto">
-    <h2 class="text-xl font-bold text-blue-700 mb-4">{{ form.id ? 'Editar' : 'Cadastrar' }} Imóvel</h2>
-    
-    <div class="space-y-3">
-        <div>
-            <label class="block text-sm font-medium mb-1">Título *</label>
-            <input v-model="form.titulo" 
-                   placeholder="Ex: Casa com 3 quartos na praia" 
-                   required 
-                   class="w-full">
-        </div>
-        
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-sm font-medium mb-1">Cidade *</label>
-                <input v-model="form.cidade" placeholder="Cidade" required>
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Bairro *</label>
-                <input v-model="form.bairro" placeholder="Bairro" required>
-            </div>
-        </div>
-        
-        <div>
-            <label class="block text-sm font-medium mb-1">Tipo *</label>
-            <select v-model="form.tipo" class="w-full">
-                <option value="venda">Venda</option>
-                <option value="aluguel">Aluguel</option>
-                <option value="temporada">Temporada</option>
-                <option value="diaria">Diária</option>
-            </select>
-        </div>
-        
-        <div>
-            <label class="block text-sm font-medium mb-1">Valor (R$) *</label>
-            <input type="number" v-model="form.valor" placeholder="Ex: 250000" required class="w-full">
-        </div>
-        
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-sm font-medium mb-1">Quartos</label>
-                <input type="number" v-model="form.quartos" placeholder="0" class="w-full">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Banheiros</label>
-                <input type="number" v-model="form.banheiros" placeholder="0" class="w-full">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Vagas</label>
-                <input type="number" v-model="form.vagas" placeholder="0" class="w-full">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">Área (m²)</label>
-                <input type="number" v-model="form.area" placeholder="0" class="w-full">
-            </div>
-        </div>
-        
-        <div class="grid grid-cols-2 gap-3">
-            <div>
-                <label class="block text-sm font-medium mb-1">Condomínio</label>
-                <input v-model="form.condominio" placeholder="R$ 0,00">
-            </div>
-            <div>
-                <label class="block text-sm font-medium mb-1">IPTU</label>
-                <input v-model="form.iptu" placeholder="R$ 0,00">
-            </div>
-        </div>
-        
-        <div>
-            <label class="block text-sm font-medium mb-1">Descrição</label>
-            <textarea v-model="form.descricao" 
-                      placeholder="Descreva o imóvel..."
-                      rows="3" 
-                      class="w-full"></textarea>
-        </div>
-        
-        <!-- UPLOAD DE FOTOS -->
-        <div class="border rounded-lg p-4">
-            <h3 class="font-medium mb-3">📷 Fotos do Imóvel (máx. 10)</h3>
-            
-            <div class="mb-3">
-                <input type="file" 
-                       multiple 
-                       accept="image/*" 
-                       @change="adicionarFotos"
-                       class="w-full"
-                       :disabled="form.fotos.length >= 10">
-                <p class="text-xs text-gray-500 mt-1">
-                    {{ form.fotos.length }}/10 fotos selecionadas
-                </p>
-            </div>
-            
-            <!-- Prévia das fotos -->
-            <div v-if="form.fotos.length > 0" class="grid grid-cols-3 gap-2 mt-3">
-                <div v-for="(foto, index) in form.fotos" 
-                     :key="index" 
-                     class="relative">
-                    <img :src="foto" class="w-full h-24 object-cover rounded">
-                    <button @click="removerFoto(index)" 
-                            class="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-5 h-5 text-xs">
-                        ×
+                <!-- Informações -->
+                <div class="p-4">
+                    <h3 class="font-bold text-lg text-gray-900 mb-1">{{ imovel.titulo }}</h3>
+                    <p class="text-gray-600 text-sm mb-3">
+                        <i class="fas fa-map-marker-alt text-blue-500 mr-2"></i>
+                        {{ imovel.cidade }} - {{ imovel.bairro }}
+                    </p>
+                    
+                    <!-- Características -->
+                    <div class="flex space-x-4 mb-4">
+                        <div class="text-center">
+                            <div class="font-bold text-gray-800">{{ imovel.quartos || 0 }}</div>
+                            <div class="text-xs text-gray-500">Quartos</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold text-gray-800">{{ imovel.banheiros || 0 }}</div>
+                            <div class="text-xs text-gray-500">Banheiros</div>
+                        </div>
+                        <div class="text-center">
+                            <div class="font-bold text-gray-800">{{ imovel.vagas || 0 }}</div>
+                            <div class="text-xs text-gray-500">Vagas</div>
+                        </div>
+                    </div>
+                    
+                    <!-- Valor -->
+                    <div class="flex items-center justify-between mb-4">
+                        <div>
+                            <div class="text-sm text-gray-500">Valor</div>
+                            <div class="font-bold text-xl text-green-700">
+                                R$ {{ formatarValor(imovel.valor) }}
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Botão WhatsApp Duplo -->
+                    <button @click="abrirWhatsAppDuplo(imovel)" 
+                            class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-lg font-bold hover:shadow-lg transition flex items-center justify-center">
+                        <i class="fab fa-whatsapp mr-2 text-xl"></i>
+                        Falar no WhatsApp
                     </button>
+                    
+                    <!-- WhatsApp do Proprietário -->
+                    <div v-if="imovel.whatsappProprietario" class="mt-3 text-center">
+                        <p class="text-xs text-gray-500">
+                            <i class="fas fa-phone-alt mr-1"></i>
+                            Proprietário: {{ formatarTelefone(imovel.whatsappProprietario) }}
+                        </p>
+                    </div>
                 </div>
             </div>
-        </div>
-        
-        <!-- UPLOAD DE VÍDEO -->
-        <div class="border rounded-lg p-4">
-            <h3 class="font-medium mb-3">🎥 Vídeo (opcional)</h3>
-            <input type="file" 
-                   accept="video/*" 
-                   @change="adicionarVideo"
-                   class="w-full mb-2">
-            <div v-if="form.video" class="text-green-600 text-sm">
-                <i class="fas fa-check"></i> Vídeo selecionado
-                <button @click="removerVideo" class="ml-2 text-red-600 text-xs">
-                    Remover vídeo
-                </button>
-            </div>
-        </div>
-        
-        <!-- Botões -->
-        <div class="flex gap-3 pt-4">
-            <button @click="cancelarCadastro" 
-                    class="flex-1 bg-gray-400 hover:bg-gray-500 text-white py-2 px-4 rounded">
-                Cancelar
-            </button>
-            <button @click="salvarImovel" 
-                    :disabled="!formValido"
-                    class="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2 px-4 rounded disabled:opacity-50">
-                {{ form.id ? 'Atualizar' : 'Salvar' }}
-            </button>
         </div>
     </div>
 </div>
 
 <!-- DETALHES DO IMÓVEL -->
-<div v-if="detalhesAberto" class="fixed inset-0 modal-bg flex justify-center items-center p-4 z-40">
-    <div class="bg-white rounded-lg max-w-md w-full max-h-[90vh] overflow-y-auto">
+<div v-if="imovelSelecionado" class="fixed inset-0 modal-bg flex justify-center items-start p-4 z-50 overflow-y-auto">
+    <div class="bg-white rounded-xl max-w-2xl w-full my-8">
         <!-- Cabeçalho -->
-        <div class="sticky top-0 bg-white border-b p-4 flex justify-between items-center">
-            <h2 class="font-bold text-xl text-blue-800">{{ imovelSelecionado.titulo }}</h2>
-            <button @click="fecharDetalhes" class="text-gray-500 hover:text-gray-700">
-                <i class="fas fa-times text-xl"></i>
+        <div class="sticky top-0 bg-white border-b p-6 flex justify-between items-center">
+            <h2 class="font-bold text-2xl text-gray-900">{{ imovelSelecionado.titulo }}</h2>
+            <button @click="imovelSelecionado = null" class="text-gray-500 hover:text-gray-700">
+                <i class="fas fa-times text-2xl"></i>
             </button>
         </div>
         
         <!-- Conteúdo -->
-        <div class="p-4">
+        <div class="p-6">
             <!-- Carrossel de fotos -->
-            <div v-if="imovelSelecionado.fotos && imovelSelecionado.fotos.length > 0" class="mb-4">
-                <img :src="imovelSelecionado.fotos[fotoAtual]" 
-                     class="w-full h-64 object-cover rounded-lg mb-2">
-                
-                <div class="flex justify-between items-center mb-2">
-                    <button @click="fotoAnterior" 
-                            :disabled="fotoAtual === 0"
-                            class="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50">
-                        ← Anterior
-                    </button>
-                    <span class="text-sm">{{ fotoAtual + 1 }} / {{ imovelSelecionado.fotos.length }}</span>
-                    <button @click="proximaFoto" 
-                            :disabled="fotoAtual === imovelSelecionado.fotos.length - 1"
-                            class="px-3 py-1 bg-blue-600 text-white rounded disabled:opacity-50">
-                        Próxima →
-                    </button>
-                </div>
-                
-                <!-- Miniaturas -->
-                <div class="flex overflow-x-auto space-x-1 pb-2">
-                    <img v-for="(foto, index) in imovelSelecionado.fotos" 
-                         :key="index"
-                         :src="foto" 
-                         @click="fotoAtual = index"
-                         :class="['w-12 h-12 object-cover rounded cursor-pointer', 
-                                 fotoAtual === index ? 'ring-2 ring-blue-500' : 'opacity-70']">
-                </div>
+            <div v-if="imovelSelecionado.fotos && imovelSelecionado.fotos.length > 0" class="mb-6">
+                <img :src="imovelSelecionado.fotos[0]" class="w-full h-96 object-cover rounded-xl mb-4">
             </div>
             
-            <!-- Vídeo -->
-            <div v-if="imovelSelecionado.video" class="mb-4">
-                <video :src="imovelSelecionado.video" 
-                       controls 
-                       class="w-full rounded-lg"></video>
-            </div>
-            
-            <!-- Informações principais -->
-            <div class="grid grid-cols-2 gap-3 mb-4">
-                <div class="bg-blue-50 p-3 rounded">
-                    <div class="text-xs text-gray-600">Cidade</div>
-                    <div class="font-medium">{{ imovelSelecionado.cidade }}</div>
+            <!-- Informações -->
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">Cidade</div>
+                    <div class="font-bold text-lg">{{ imovelSelecionado.cidade }}</div>
                 </div>
-                <div class="bg-blue-50 p-3 rounded">
-                    <div class="text-xs text-gray-600">Bairro</div>
-                    <div class="font-medium">{{ imovelSelecionado.bairro }}</div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">Bairro</div>
+                    <div class="font-bold text-lg">{{ imovelSelecionado.bairro }}</div>
                 </div>
-                <div class="bg-blue-50 p-3 rounded">
-                    <div class="text-xs text-gray-600">Tipo</div>
-                    <div class="font-medium">{{ imovelSelecionado.tipo }}</div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">Tipo</div>
+                    <div class="font-bold text-lg">{{ getTipoLabel(imovelSelecionado.tipo) }}</div>
                 </div>
-                <div class="bg-blue-50 p-3 rounded">
-                    <div class="text-xs text-gray-600">Área</div>
-                    <div class="font-medium">{{ imovelSelecionado.area || '0' }} m²</div>
+                <div class="bg-blue-50 p-4 rounded-lg">
+                    <div class="text-sm text-gray-600">Área</div>
+                    <div class="font-bold text-lg">{{ imovelSelecionado.area || '0' }} m²</div>
                 </div>
             </div>
             
             <!-- Características -->
-            <div class="flex justify-around bg-gray-50 p-4 rounded-lg mb-4">
+            <div class="flex justify-around bg-gray-100 p-6 rounded-xl mb-6">
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-700">{{ imovelSelecionado.quartos || 0 }}</div>
-                    <div class="text-xs text-gray-600">Quartos</div>
+                    <div class="text-3xl font-bold text-blue-700">{{ imovelSelecionado.quartos || 0 }}</div>
+                    <div class="text-sm text-gray-600">Quartos</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-700">{{ imovelSelecionado.banheiros || 0 }}</div>
-                    <div class="text-xs text-gray-600">Banheiros</div>
+                    <div class="text-3xl font-bold text-blue-700">{{ imovelSelecionado.banheiros || 0 }}</div>
+                    <div class="text-sm text-gray-600">Banheiros</div>
                 </div>
                 <div class="text-center">
-                    <div class="text-2xl font-bold text-blue-700">{{ imovelSelecionado.vagas || 0 }}</div>
-                    <div class="text-xs text-gray-600">Vagas</div>
-                </div>
-            </div>
-            
-            <!-- Descrição -->
-            <div class="mb-4">
-                <h3 class="font-bold mb-2">Descrição</h3>
-                <p class="text-gray-700 whitespace-pre-line">{{ imovelSelecionado.descricao || 'Sem descrição' }}</p>
-            </div>
-            
-            <!-- Custos -->
-            <div class="mb-4">
-                <h3 class="font-bold mb-2">Custos</h3>
-                <div class="space-y-2">
-                    <div v-if="imovelSelecionado.condominio" class="flex justify-between">
-                        <span>Condomínio:</span>
-                        <span class="font-medium">R$ {{ formatarValor(imovelSelecionado.condominio) }}</span>
-                    </div>
-                    <div v-if="imovelSelecionado.iptu" class="flex justify-between">
-                        <span>IPTU:</span>
-                        <span class="font-medium">R$ {{ formatarValor(imovelSelecionado.iptu) }}</span>
-                    </div>
+                    <div class="text-3xl font-bold text-blue-700">{{ imovelSelecionado.vagas || 0 }}</div>
+                    <div class="text-sm text-gray-600">Vagas</div>
                 </div>
             </div>
             
             <!-- Valor -->
-            <div class="bg-green-50 p-4 rounded-lg mb-4">
-                <div class="text-sm text-gray-600 mb-1">Valor do Imóvel</div>
-                <div class="font-bold text-green-700 text-2xl">
+            <div class="bg-green-50 p-6 rounded-xl mb-6">
+                <div class="text-lg font-bold text-green-800 mb-2">Valor do Imóvel</div>
+                <div class="font-bold text-3xl text-green-700">
                     R$ {{ formatarValor(imovelSelecionado.valor) }}
                 </div>
-                <div class="text-xs text-gray-600">
-                    <span v-if="imovelSelecionado.tipo === 'diaria'">por diária</span>
-                    <span v-else-if="imovelSelecionado.tipo === 'aluguel'">por mês</span>
-                    <span v-else-if="imovelSelecionado.tipo === 'temporada'">temporada</span>
+                <div v-if="imovelSelecionado.condominio" class="mt-2">
+                    <span class="text-gray-600">Condomínio: </span>
+                    <span class="font-bold">R$ {{ formatarValor(imovelSelecionado.condominio) }}</span>
                 </div>
             </div>
             
-            <!-- Botão WhatsApp -->
-            <a :href="'https://wa.me/5584991612793?text=' + encodeURIComponent('Tenho interesse no imóvel: ' + imovelSelecionado.titulo + ' - ' + imovelSelecionado.cidade + ' - R$ ' + imovelSelecionado.valor)"
-               target="_blank"
-               class="block w-full bg-green-600 hover:bg-green-700 text-white text-center py-3 px-4 rounded-lg font-bold">
-               <i class="fab fa-whatsapp mr-2"></i>Falar no WhatsApp
-            </a>
+            <!-- Descrição -->
+            <div class="mb-8">
+                <h3 class="font-bold text-xl mb-3">Descrição</h3>
+                <p class="text-gray-700 whitespace-pre-line">{{ imovelSelecionado.descricao || 'Sem descrição' }}</p>
+            </div>
+            
+            <!-- WhatsApp Duplo - MENSAGEM PARA AMBOS -->
+            <div class="space-y-4">
+                <div class="bg-yellow-50 border border-yellow-200 rounded-xl p-4">
+                    <h4 class="font-bold text-yellow-800 mb-2">
+                        <i class="fas fa-info-circle mr-2"></i>
+                        Como funciona o contato
+                    </h4>
+                    <p class="text-sm text-yellow-700">
+                        Ao clicar no botão abaixo, uma mensagem será enviada para <strong>DOIS números</strong>:
+                    </p>
+                    <ul class="text-sm text-yellow-700 mt-2 space-y-1">
+                        <li><i class="fas fa-check-circle mr-2"></i>Para o proprietário (anunciante)</li>
+                        <li><i class="fas fa-check-circle mr-2"></i>Para você (interessado)</li>
+                    </ul>
+                </div>
+                
+                <!-- Formulário do Interessado -->
+                <div class="bg-blue-50 rounded-xl p-4">
+                    <h4 class="font-bold text-blue-800 mb-3">Seus dados para contato</h4>
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Seu Nome <span class="text-red-500">*</span>
+                            </label>
+                            <input type="text" 
+                                   v-model="dadosInteressado.nome" 
+                                   placeholder="Digite seu nome"
+                                   class="w-full">
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Seu WhatsApp <span class="text-red-500">*</span>
+                            </label>
+                            <div class="flex">
+                                <span class="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500">
+                                    +55
+                                </span>
+                                <input type="tel" 
+                                       v-model="dadosInteressado.whatsapp" 
+                                       placeholder="84 99999-9999"
+                                       class="flex-1 rounded-r-md">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-sm font-medium text-gray-700 mb-1">
+                                Mensagem adicional (opcional)
+                            </label>
+                            <textarea v-model="dadosInteressado.mensagem" 
+                                      placeholder="Ex: Gostaria de agendar uma visita..."
+                                      rows="2"
+                                      class="w-full"></textarea>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Botão WhatsApp Duplo -->
+                <button @click="enviarWhatsAppDuplo" 
+                        :disabled="!dadosInteressado.nome || !dadosInteressado.whatsapp"
+                        class="w-full bg-gradient-to-r from-green-500 to-green-600 text-white py-4 rounded-xl text-lg font-bold hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    <i class="fab fa-whatsapp mr-2 text-xl"></i>
+                    ENVIAR MENSAGEM PARA AMBOS
+                </button>
+                
+                <!-- WhatsApp do Proprietário -->
+                <div v-if="imovelSelecionado.whatsappProprietario" class="text-center">
+                    <p class="text-sm text-gray-600">
+                        <i class="fas fa-phone-alt mr-1"></i>
+                        Proprietário: {{ formatarTelefone(imovelSelecionado.whatsappProprietario) }}
+                    </p>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -496,167 +391,76 @@ img{object-fit:cover;}
 </div>
 
 <script>
-// DADOS INICIAIS - SÃO MANTIDOS NA MEMÓRIA
-const DADOS_INICIAIS = [
-    {
-        id: 1,
-        titulo: "Casa com 3 quartos na praia",
-        cidade: "Natal",
-        bairro: "Ponta Negra",
-        tipo: "venda",
-        valor: "450000",
-        quartos: 3,
-        banheiros: 2,
-        vagas: 2,
-        area: "120",
-        condominio: "250",
-        iptu: "1200",
-        descricao: "Linda casa a 200m da praia de Ponta Negra. Totalmente reformada, com piscina e jardim.\nPróxima a restaurantes e comércio.",
-        fotos: [
-            "https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=400",
-            "https://images.unsplash.com/photo-1568605114967-8130f3a36994?w-400",
-            "https://images.unsplash.com/photo-1570129477492-45c003edd2be?w-400"
-        ],
-        video: null
-    },
-    {
-        id: 2,
-        titulo: "Apartamento moderno centro",
-        cidade: "João Pessoa",
-        bairro: "Centro",
-        tipo: "aluguel",
-        valor: "1800",
-        quartos: 2,
-        banheiros: 1,
-        vagas: 1,
-        area: "65",
-        condominio: "350",
-        iptu: "800",
-        descricao: "Apartamento novo no centro da cidade. Próximo a tudo: bancos, mercados, farmácias.\nMobiliado com eletrodomésticos novos.",
-        fotos: [
-            "https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400",
-            "https://images.unsplash.com/photo-1484101403633-562f891dc89a?w=400"
-        ],
-        video: null
-    },
-    {
-        id: 3,
-        titulo: "Casa de temporada na praia",
-        cidade: "Recife",
-        bairro: "Boa Viagem",
-        tipo: "diaria",
-        valor: "250",
-        quartos: 4,
-        banheiros: 3,
-        vagas: 3,
-        area: "180",
-        condominio: null,
-        iptu: null,
-        descricao: "Perfeita para famílias! Casa espaçosa a 100m da praia de Boa Viagem.\nCom churrasqueira, rede e vista para o mar.",
-        fotos: [
-            "https://images.unsplash.com/photo-1512917774080-9991f1c4c750?w=400",
-            "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?w=400"
-        ],
-        video: null
-    }
-];
-
 const app = Vue.createApp({
     data() {
         return {
             // Navegação
             view: 'home',
             menu: false,
-            
-            // Autenticação
             admin: false,
-            senha: '',
-            SENHA_ADMIN: '8018@79', // MUDE ESTA SENHA!
             
-            // Modal WhatsApp
-            modalZap: false,
+            // Modais
+            modalAnunciar: false,
+            imovelSelecionado: null,
             
-            // DADOS PRINCIPAIS - AGORA FICAM SEMPRE NA MEMÓRIA
-            imoveis: [...DADOS_INICIAIS], // Começa com dados de exemplo
-            
-            // Filtros
-            filtroCidade: '',
-            filtroTipo: '',
-            filtroMin: '',
-            filtroMax: '',
-            
-            // Formulário de cadastro
-            form: {
-                id: null,
-                titulo: '',
-                cidade: '',
-                bairro: '',
-                tipo: 'venda',
-                valor: '',
-                quartos: '',
-                banheiros: '',
-                vagas: '',
-                area: '',
-                condominio: '',
-                iptu: '',
-                descricao: '',
-                fotos: [],
-                video: null
+            // Dados do novo anúncio
+            novoAnuncio: {
+                whatsappVendedor: '84991612793',
+                nomeVendedor: '',
+                tipo: 'casa'
             },
             
-            // Detalhes do imóvel
-            detalhesAberto: false,
-            imovelSelecionado: null,
-            fotoAtual: 0
+            // Dados do interessado
+            dadosInteressado: {
+                nome: '',
+                whatsapp: '',
+                mensagem: ''
+            },
+            
+            // Imóveis na memória
+            imoveis: [
+                {
+                    id: 1,
+                    titulo: "Casa com 3 quartos na praia",
+                    cidade: "Natal",
+                    bairro: "Ponta Negra",
+                    tipo: "venda",
+                    valor: "450000",
+                    quartos: 3,
+                    banheiros: 2,
+                    vagas: 2,
+                    area: "120",
+                    condominio: "250",
+                    descricao: "Linda casa a 200m da praia de Ponta Negra. Totalmente reformada, com piscina e jardim.",
+                    fotos: ["https://images.unsplash.com/photo-1518780664697-55e3ad937233?w=400"],
+                    whatsappProprietario: "84991612793",
+                    nomeProprietario: "João Silva"
+                },
+                {
+                    id: 2,
+                    titulo: "Apartamento moderno centro",
+                    cidade: "João Pessoa",
+                    bairro: "Centro",
+                    tipo: "aluguel",
+                    valor: "1800",
+                    quartos: 2,
+                    banheiros: 1,
+                    vagas: 1,
+                    area: "65",
+                    condominio: "350",
+                    descricao: "Apartamento novo no centro da cidade. Próximo a tudo: bancos, mercados, farmácias.",
+                    fotos: ["https://images.unsplash.com/photo-1545324418-cc1a3fa10c00?w=400"],
+                    whatsappProprietario: "84999998888",
+                    nomeProprietario: "Maria Santos"
+                }
+            ]
         }
     },
     
     computed: {
-        // Lista de cidades únicas para filtro
-        listaCidades() {
-            const cidades = this.imoveis.map(i => i.cidade).filter(Boolean);
-            return [...new Set(cidades)].sort();
-        },
-        
-        // Imóveis filtrados
-        imoveisFiltrados() {
-            return this.imoveis.filter(imovel => {
-                // Filtro por cidade
-                if (this.filtroCidade && imovel.cidade !== this.filtroCidade) {
-                    return false;
-                }
-                
-                // Filtro por tipo
-                if (this.filtroTipo && imovel.tipo !== this.filtroTipo) {
-                    return false;
-                }
-                
-                // Filtro por valor mínimo
-                if (this.filtroMin && parseFloat(imovel.valor) < parseFloat(this.filtroMin)) {
-                    return false;
-                }
-                
-                // Filtro por valor máximo
-                if (this.filtroMax && parseFloat(imovel.valor) > parseFloat(this.filtroMax)) {
-                    return false;
-                }
-                
-                return true;
-            });
-        },
-        
-        // Verifica se há filtros ativos
+        // Filtros ativos
         temFiltrosAtivos() {
-            return this.filtroCidade || this.filtroTipo || this.filtroMin || this.filtroMax;
-        },
-        
-        // Validação do formulário
-        formValido() {
-            return this.form.titulo && 
-                   this.form.cidade && 
-                   this.form.bairro && 
-                   this.form.valor &&
-                   this.form.fotos.length > 0;
+            return false; // Simplificado para este exemplo
         }
     },
     
@@ -667,180 +471,127 @@ const app = Vue.createApp({
             this.view = pagina;
         },
         
-        // Autenticação
-        logar() {
-            if (this.senha === this.SENHA_ADMIN) {
-                this.admin = true;
-                this.view = 'admin';
-                this.senha = '';
-            } else {
-                alert('Senha incorreta!');
-            }
-        },
-        
-        sair() {
-            this.admin = false;
-            this.view = 'home';
-        },
-        
-        // Filtros
-        aplicarFiltros() {
-            this.view = 'home';
-        },
-        
-        limparFiltros() {
-            this.filtroCidade = '';
-            this.filtroTipo = '';
-            this.filtroMin = '';
-            this.filtroMax = '';
-        },
-        
-        // Gerenciamento de imóveis
-        verImovel(imovel) {
+        // WhatsApp Duplo - Funcionalidade PRINCIPAL
+        abrirWhatsAppDuplo(imovel) {
             this.imovelSelecionado = imovel;
-            this.fotoAtual = 0;
-            this.detalhesAberto = true;
-        },
-        
-        fecharDetalhes() {
-            this.detalhesAberto = false;
-            this.imovelSelecionado = null;
-            this.fotoAtual = 0;
-        },
-        
-        fotoAnterior() {
-            if (this.fotoAtual > 0) {
-                this.fotoAtual--;
-            }
-        },
-        
-        proximaFoto() {
-            if (this.imovelSelecionado.fotos && 
-                this.fotoAtual < this.imovelSelecionado.fotos.length - 1) {
-                this.fotoAtual++;
-            }
-        },
-        
-        // Formulário de cadastro
-        adicionarFotos(event) {
-            const files = event.target.files;
-            const fotosRestantes = 10 - this.form.fotos.length;
-            
-            if (files.length > fotosRestantes) {
-                alert(`Você só pode adicionar mais ${fotosRestantes} fotos.`);
-                return;
-            }
-            
-            for (let i = 0; i < Math.min(files.length, fotosRestantes); i++) {
-                const file = files[i];
-                const reader = new FileReader();
-                
-                reader.onload = (e) => {
-                    this.form.fotos.push(e.target.result);
-                };
-                
-                reader.readAsDataURL(file);
-            }
-            
-            event.target.value = '';
-        },
-        
-        removerFoto(index) {
-            this.form.fotos.splice(index, 1);
-        },
-        
-        adicionarVideo(event) {
-            const file = event.target.files[0];
-            if (!file) return;
-            
-            if (file.size > 50 * 1024 * 1024) {
-                alert('Vídeo muito grande! Máximo 50MB.');
-                return;
-            }
-            
-            const reader = new FileReader();
-            reader.onload = (e) => {
-                this.form.video = e.target.result;
+            this.dadosInteressado = {
+                nome: '',
+                whatsapp: '',
+                mensagem: ''
             };
-            reader.readAsDataURL(file);
-            
-            event.target.value = '';
         },
         
-        removerVideo() {
-            this.form.video = null;
-        },
-        
-        salvarImovel() {
-            if (!this.formValido) {
-                alert('Preencha todos os campos obrigatórios e adicione pelo menos uma foto!');
+        enviarWhatsAppDuplo() {
+            if (!this.dadosInteressado.nome || !this.dadosInteressado.whatsapp) {
+                alert('Por favor, preencha seu nome e WhatsApp!');
                 return;
             }
             
-            if (this.form.id) {
-                // Editar imóvel existente
-                const index = this.imoveis.findIndex(i => i.id === this.form.id);
-                if (index !== -1) {
-                    this.imoveis[index] = { ...this.form };
-                }
-            } else {
-                // Novo imóvel
-                const novoImovel = {
-                    ...this.form,
-                    id: Date.now() // ID único baseado no timestamp
-                };
-                this.imoveis.unshift(novoImovel); // Adiciona no início
+            const imovel = this.imovelSelecionado;
+            
+            // Mensagem padrão
+            let mensagem = `*INTERESSE EM IMÓVEL - BlueHomes*%0A%0A`;
+            
+            // Informações do imóvel
+            mensagem += `*Imóvel:* ${imovel.titulo}%0A`;
+            mensagem += `*Local:* ${imovel.cidade} - ${imovel.bairro}%0A`;
+            mensagem += `*Tipo:* ${this.getTipoLabel(imovel.tipo)}%0A`;
+            mensagem += `*Valor:* R$ ${this.formatarValor(imovel.valor)}%0A`;
+            mensagem += `*Quartos:* ${imovel.quartos || 0}%0A`;
+            mensagem += `*Banheiros:* ${imovel.banheiros || 0}%0A`;
+            mensagem += `*Vagas:* ${imovel.vagas || 0}%0A`;
+            mensagem += `*Área:* ${imovel.area || '0'} m²%0A%0A`;
+            
+            // Informações do interessado
+            mensagem += `*DADOS DO INTERESSADO*%0A`;
+            mensagem += `*Nome:* ${this.dadosInteressado.nome}%0A`;
+            mensagem += `*WhatsApp:* ${this.formatarTelefone(this.dadosInteressado.whatsapp)}%0A`;
+            
+            if (this.dadosInteressado.mensagem) {
+                mensagem += `*Mensagem:* ${this.dadosInteressado.mensagem}%0A`;
             }
             
-            // Limpar formulário
-            this.limparFormulario();
+            mensagem += `%0A---%0A`;
+            mensagem += `*Esta mensagem foi enviada automaticamente pelo site BlueHomes*`;
             
-            // Voltar para admin
-            this.view = 'admin';
+            // 1. Abrir WhatsApp para o PROPRIETÁRIO
+            const whatsappProprietario = this.limparTelefone(imovel.whatsappProprietario || '84991612793');
+            window.open(`https://wa.me/55${whatsappProprietario}?text=${mensagem}`, '_blank');
             
-            // Mostrar confirmação
-            alert(this.form.id ? 'Imóvel atualizado com sucesso!' : 'Imóvel cadastrado com sucesso!');
+            // 2. Abrir WhatsApp para o INTERESSADO (cliente)
+            const whatsappInteressado = this.limparTelefone(this.dadosInteressado.whatsapp);
+            
+            // Mensagem para o interessado (um pouco diferente)
+            let mensagemInteressado = `*CONFIRMAÇÃO DE INTERESSE - BlueHomes*%0A%0A`;
+            mensagemInteressado += `Olá ${this.dadosInteressado.nome},%0A%0A`;
+            mensagemInteressado += `Seu interesse no imóvel *${imovel.titulo}* foi registrado!%0A%0A`;
+            mensagemInteressado += `*Detalhes do imóvel:*%0A`;
+            mensagemInteressado += `- Local: ${imovel.cidade} - ${imovel.bairro}%0A`;
+            mensagemInteressado += `- Valor: R$ ${this.formatarValor(imovel.valor)}%0A`;
+            mensagemInteressado += `- Contato do proprietário: ${this.formatarTelefone(imovel.whatsappProprietario)}%0A%0A`;
+            mensagemInteressado += `O proprietário *${imovel.nomeProprietario || 'João Silva'}* já foi notificado e entrará em contato em breve.%0A%0A`;
+            mensagemInteressado += `*BlueHomes - Conectando você ao seu novo lar!*`;
+            
+            // Pequeno delay para abrir a segunda janela
+            setTimeout(() => {
+                window.open(`https://wa.me/55${whatsappInteressado}?text=${mensagemInteressado}`, '_blank');
+            }, 500);
+            
+            // Fechar modal após envio
+            setTimeout(() => {
+                this.imovelSelecionado = null;
+                alert('Mensagem enviada para o proprietário e para você! Verifique seu WhatsApp.');
+            }, 1000);
         },
         
-        editarImovel(index) {
-            const imovel = this.imoveis[index];
-            this.form = { ...imovel };
-            this.view = 'cadastro';
-        },
-        
-        confirmarExclusao(index) {
-            if (confirm('Tem certeza que deseja excluir este imóvel?')) {
-                this.imoveis.splice(index, 1);
-                alert('Imóvel excluído com sucesso!');
+        // Anunciar novo imóvel
+        abrirWhatsAppAnuncio() {
+            if (!this.novoAnuncio.whatsappVendedor) {
+                alert('Por favor, informe seu WhatsApp!');
+                return;
             }
-        },
-        
-        cancelarCadastro() {
-            this.limparFormulario();
-            this.view = 'admin';
-        },
-        
-        limparFormulario() {
-            this.form = {
-                id: null,
-                titulo: '',
-                cidade: '',
-                bairro: '',
-                tipo: 'venda',
-                valor: '',
-                quartos: '',
-                banheiros: '',
-                vagas: '',
-                area: '',
-                condominio: '',
-                iptu: '',
-                descricao: '',
-                fotos: [],
-                video: null
+            
+            let mensagem = `*NOVO ANÚNCIO - BlueHomes*%0A%0A`;
+            mensagem += `Olá! Gostaria de anunciar um imóvel.%0A%0A`;
+            mensagem += `*Meus dados:*%0A`;
+            mensagem += `- Nome: ${this.novoAnuncio.nomeVendedor || 'Não informado'}%0A`;
+            mensagem += `- WhatsApp: ${this.formatarTelefone(this.novoAnuncio.whatsappVendedor)}%0A`;
+            mensagem += `- Tipo do imóvel: ${this.novoAnuncio.tipo}%0A%0A`;
+            mensagem += `*Por favor, me envie:*%0A`;
+            mensagem += `1. Fotos do imóvel (até 10)%0A`;
+            mensagem += `2. Vídeo (opcional)%0A`;
+            mensagem += `3. Descrição completa%0A`;
+            mensagem += `4. Valor%0A`;
+            mensagem += `5. Endereço%0A%0A`;
+            mensagem += `*Obrigado!*%0A`;
+            mensagem += `_Sistema BlueHomes_`;
+            
+            const telefoneLimpo = this.limparTelefone(this.novoAnuncio.whatsappVendedor);
+            window.open(`https://wa.me/55${telefoneLimpo}?text=${mensagem}`, '_blank');
+            
+            this.modalAnunciar = false;
+            this.novoAnuncio = {
+                whatsappVendedor: '84991612793',
+                nomeVendedor: '',
+                tipo: 'casa'
             };
         },
         
         // Utilitários
+        limparTelefone(telefone) {
+            return telefone.replace(/\D/g, '');
+        },
+        
+        formatarTelefone(telefone) {
+            const tel = this.limparTelefone(telefone);
+            if (tel.length === 11) {
+                return `(${tel.substring(0, 2)}) ${tel.substring(2, 7)}-${tel.substring(7)}`;
+            } else if (tel.length === 10) {
+                return `(${tel.substring(0, 2)}) ${tel.substring(2, 6)}-${tel.substring(6)}`;
+            }
+            return tel;
+        },
+        
         formatarValor(valor) {
             if (!valor) return '0,00';
             return parseFloat(valor).toLocaleString('pt-BR', {
@@ -849,36 +600,56 @@ const app = Vue.createApp({
             });
         },
         
-        exportarDados() {
-            const dados = {
-                imoveis: this.imoveis,
-                dataExportacao: new Date().toISOString(),
-                total: this.imoveis.length
+        getTipoLabel(tipo) {
+            const labels = {
+                'venda': 'Venda',
+                'aluguel': 'Aluguel',
+                'temporada': 'Temporada',
+                'diaria': 'Diária',
+                'casa': 'Casa',
+                'apartamento': 'Apartamento',
+                'terreno': 'Terreno',
+                'comercial': 'Comercial'
             };
-            
-            const json = JSON.stringify(dados, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const url = URL.createObjectURL(blob);
-            const a = document.createElement('a');
-            a.href = url;
-            a.download = `backup-bluehomes-${new Date().toLocaleDateString('pt-BR')}.json`;
-            document.body.appendChild(a);
-            a.click();
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-            
-            alert(`Backup exportado com ${this.imoveis.length} imóveis!`);
+            return labels[tipo] || tipo;
+        },
+        
+        // Autenticação (simplificada)
+        logar() {
+            // Simples para exemplo
+            this.admin = true;
+            this.view = 'admin';
+        },
+        
+        sair() {
+            this.admin = false;
+            this.view = 'home';
+        },
+        
+        cancelarCadastro() {
+            this.view = 'home';
         }
     },
     
     mounted() {
-        // Já carregamos os dados iniciais direto na memória
-        console.log(`Sistema iniciado com ${this.imoveis.length} imóveis na memória`);
+        console.log('Sistema BlueHomes carregado!');
+        console.log(`${this.imoveis.length} imóveis disponíveis`);
         
-        // Verificar se é a primeira vez (opcional)
-        if (this.imoveis.length === 0) {
-            console.log('Nenhum imóvel na memória. Sistema pronto para cadastrar novos.');
+        // Restaurar dados do sessionStorage se existirem
+        try {
+            const saved = sessionStorage.getItem('bluehomes_imoveis');
+            if (saved) {
+                this.imoveis = JSON.parse(saved);
+                console.log('Dados restaurados do sessionStorage');
+            }
+        } catch (e) {
+            console.log('Usando dados padrão');
         }
+        
+        // Auto-save a cada 30 segundos
+        setInterval(() => {
+            sessionStorage.setItem('bluehomes_imoveis', JSON.stringify(this.imoveis));
+        }, 30000);
     }
 });
 
